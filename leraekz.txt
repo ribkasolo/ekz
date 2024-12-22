@@ -1,0 +1,143 @@
+супабасе подключение:
+import android.app.Application
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.gotrue.Auth
+
+import io.github.jan.supabase.postgrest.Postgrest
+
+object sb : Application() {
+    val supabase = createSupabaseClient(
+        supabaseUrl = "https://eewktfnehccgklsztfqn.supabase.co/",
+        supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVld2t0Zm5laGNjZ2tsc3p0ZnFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0MDY3NTQsImV4cCI6MjA0Njk4Mjc1NH0.TthjK7N31nDpqMZgPP-DnYpMjM1vgp5bABy9xmlPHws"
+    ) {
+        install(Auth)
+        install(Postgrest)
+    }
+    public fun getSB() : SupabaseClient{
+        return supabase
+    }
+}
+
+
+---
+Регистрация:
+lifecycleScope.launch {
+                            var supabase = sb.getSB()
+                            val user = supabase.auth.signUpWith(Email) {
+                                email = emailEditText?.text.toString()
+                                password = passwordEditText?.text.toString()
+                            }
+
+
+---
+Авторизация:
+lifecycleScope.launch {
+                            var supabase = sb.getSB()
+                            val user = supabase.auth.signInWith(Email) {
+                                email = emailEditText?.text.toString()
+                                password = passwordEditText?.text.toString()
+                            }
+
+---
+градле верхнее:
+plugins {
+    id("com.android.application") version "8.2.1" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+    id ("org.jetbrains.kotlin.plugin.serialization") version "2.0.0-RC3" apply false
+}
+
+---
+градле нижнее (побольше):
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id ("org.jetbrains.kotlin.plugin.serialization") version "2.0.0-RC3"
+}
+
+android {
+    namespace = "com.example.kotlin"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.example.kotlin"
+        minSdk = 28
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
+    implementation("androidx.compose.runtime:runtime-android:1.7.5")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+
+    implementation(platform("io.github.jan-tennert.supabase:bom:2.6.1"))
+    implementation ("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation ("io.github.jan-tennert.supabase:realtime-kt")
+
+    implementation("io.ktor:ktor-client-cio:2.3.4")
+}
+
+//манифест
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <application
+
+        android:usesCleartextTraffic="true"
+        android:allowBackup="true"
+
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Pp"
+        tools:targetApi="35">
+// активости тута
+</application>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
