@@ -1,0 +1,602 @@
+manifest  -------------
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <application
+        android:usesCleartextTraffic="false"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.YmniDom"
+        tools:targetApi="31">
+
+        <activity android:name=".MainActivityRegister"
+            android:exported="true">
+        </activity>
+        <activity android:name=".PineCode"
+            android:exported="true">
+        </activity>
+        <activity android:name=".PineCodeCreate"
+            android:exported="true">
+        </activity>
+        <activity android:name=".Adress"
+            android:exported="true">
+        </activity>
+        <activity android:name=".FullDom"
+            android:exported="true">
+        </activity>
+        <activity android:name=".Profile"
+            android:exported="true">
+        </activity>
+        <activity android:name=".AddKomnata"
+            android:exported="true">
+        </activity>
+        <activity android:name=".AddPolzovati"
+            android:exported="true">
+        </activity>
+        <activity android:name=".SplashScreen"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".AddYstroistva"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+        </activity>
+    </application>
+
+</manifest>
+----------------------------------------------------------------------------------------
+supadataclass
+
+package com.example.ymnidom
+import kotlinx.serialization.Serializable
+@Serializable
+data class SupaDataClass(
+    val id: Int,
+    val Address: String,
+    val Name: String
+)
+----------------------------------------------------------------------------------
+LOGIN + SUPA 
+
+package com.example.ymnidom
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import android.text.InputType
+import androidx.lifecycle.lifecycleScope
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.providers.builtin.Email
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var loginButton: Button
+    private lateinit var registerButton: Button
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        emailEditText = findViewById(R.id.email_edit_text)
+        passwordEditText = findViewById(R.id.password_edit_text)
+        loginButton = findViewById(R.id.save_button)
+        registerButton = findViewById(R.id.register)
+
+        loginButton.setOnClickListener {
+            val emailview = emailEditText.text.toString()
+            val passwordview = passwordEditText.text.toString()
+
+            if (emailview.isEmpty() || passwordview.isEmpty()) {
+                Toast.makeText(this, "Есть пустые поля", Toast.LENGTH_SHORT).show()
+
+            }
+
+            // Проверка почты на корректность
+            else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailview).matches()) {
+                Toast.makeText(this, "Некорректный адрес электронной почты", Toast.LENGTH_SHORT)
+                    .show()
+
+            }
+
+            else {
+
+                Toast.makeText(this, "Проверка прошла успешно", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, PineCode::class.java)
+                startActivity(intent)
+
+                val job = Job()
+                val scope = CoroutineScope(Dispatchers.Main + job)
+                if (job.isActive) {
+                    lifecycleScope.launch {
+                        var supabase = supa.getSB()
+                        val user = supabase.auth.signInWith(Email) {
+                            email = emailEditText?.text.toString()
+                            password = passwordEditText?.text.toString()
+                        }
+                    }
+                }
+
+                if (!job.isActive) {
+                    job.cancel()
+                }
+
+            }
+
+        }
+
+        registerButton.setOnClickListener {
+
+            val intent = Intent(this, Adress::class.java)
+            startActivity(intent)
+        }
+    }
+}
+
+
+
+--------------------------------------------------------------------
+XML LOGIN 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/holodilnic"
+    android:backgroundTint="#AB22D2FF"
+    android:backgroundTintMode="multiply"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="98dp"
+        android:layout_height="81dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="160dp"
+        android:src="@drawable/logo" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="140dp"
+        android:layout_marginTop="1dp"
+        android:text="Умный дом"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+
+    <LinearLayout
+
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
+        android:background="@drawable/circlegolo"
+        android:elevation="10dp"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:padding="20dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Электронная почта"
+            android:textColor="#474444"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/email_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-10dp"
+            android:hint="usernametest@mail.ru"
+            android:inputType="textEmailAddress"
+            android:padding="10dp"
+            android:textColor="#70000000"
+            android:textColorHint="#59000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Пароль"
+            android:textColor="#474444"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/password_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-10dp"
+            android:hint="********"
+            android:inputType="numberPassword"
+            android:padding="10dp"
+            android:textColor="#000000"
+            android:textColorHint="#59000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="274dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/circle"
+        android:text="Войти"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+       />
+
+    <Button
+        android:id="@+id/register"
+        android:layout_width="274dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/circlevlack"
+        android:text="Регистрация"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+
+</LinearLayout>
+
+---------------------------
+ADAPTER 
+
+package com.example.ymnidom
+
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
+import androidx.recyclerview.widget.RecyclerView
+
+class UsersAdapter (private val data: Array<String>, private val typeData:Array<Int>) : RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        var TitleText: TextView?
+        var Image: ImageView?
+
+        init {
+            TitleText = itemView?.findViewById<TextView>(R.id.text)
+            Image = itemView?.findViewById(R.id.image);
+            itemView.setOnClickListener(this)
+        }
+
+        var mClickListener: ItemClickListener? = null
+        public fun setOnClickListener(clickListener: ItemClickListener)
+        {
+            mClickListener = clickListener
+        }
+        override fun onClick(p0: View?) {
+            mClickListener?.onItemClick(p0, adapterPosition)
+        }
+    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.itemusersvnesh, parent, false)
+
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val TitleText: String = data!![position]
+        val Type: Int = typeData!![position]
+
+        holder.TitleText?.setText(TitleText)
+
+        when (Type) {
+            1 -> holder.Image?.setImageResource(R.drawable.users_cowboy)
+            2 -> holder.Image?.setImageResource(R.drawable.users_music)
+            3 -> holder.Image?.setImageResource(R.drawable.users_cowboy)
+
+            else -> {
+                Log.e("ERROR", "Room image type is missing!")
+            }
+        }
+    }
+    override fun getItemCount(): Int {
+        return data!!.size
+    }
+
+    fun getItem(id: Int): String? {
+        return data!![id]
+    }
+
+    interface ItemClickListener {
+        fun onItemClick(view: View?, position: Int)
+    }
+}
+
+---------------------------------------
+FRAGMENT
+
+package com.example.ymnidom
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+class UsersFragment : Fragment()  {
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_user, container, false)
+
+        val buttonuser = view.findViewById<ImageView>(R.id.plususer)
+
+        val datasetUsers = arrayOf("Сын", "Дочь", "Батя")
+        val datasetUsersType = arrayOf(1, 2, 3)
+        val usersAdapter = UsersAdapter(datasetUsers, datasetUsersType)
+
+        val recyclerViewUsers: RecyclerView = view.findViewById(R.id.recyclerUser)
+        recyclerViewUsers.layoutManager = LinearLayoutManager(requireContext())
+        recyclerViewUsers.adapter = usersAdapter
+
+        buttonuser.setOnClickListener {
+            val intent = Intent(requireContext(), AddPolzovati::class.java)
+            startActivity(intent)
+        }
+
+        return view
+    }
+}
+
+
+-----------------
+FRAGMENT XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/plususer"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="right"
+            android:src="@drawable/buttonplus"
+          android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"/>
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
+
+-------------------------
+ITEM XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="310dp"
+    android:layout_height="100dp"
+    android:layout_marginTop="20dp"
+    android:background="@drawable/item1"
+    android:layout_gravity="center_horizontal">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="25dp"
+        android:src="@drawable/nazad"/>
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Сын"
+        android:layout_marginLeft="100dp"
+        android:textColor="#0B50A0"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"/>
+
+
+
+</LinearLayout>
+--------------------------
+
+MAIN СТРАНИЦА 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/button_black"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:layout_marginLeft="1dp"
+                android:text="Твой дом"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/setting"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="200dp"
+                android:src="@drawable/settings"
+                android:padding="5dp"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="12dp"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:text="вфцв 21321 вы3 123"
+                android:textColor="#94949B"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:background="@color/button_black">
+            <TextView
+                android:id="@+id/roomsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:text="Комнаты"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                />
+            <TextView
+                android:id="@+id/devicesTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="30dp"
+                android:text="Устройство"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                />
+            <TextView
+                android:id="@+id/usersTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="30dp"
+                android:text="Пользователи"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+</LinearLayout>
+
+---------------------
+splash 
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/splashscreen" />
+
+
+</LinearLayout>

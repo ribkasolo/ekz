@@ -1,0 +1,113 @@
+
+по нажатию на кнопку
+
+делает запись
+
+красит картинку
+
+и шаред префенсес делает
+
+fun onDigitClick(v: View) {
+        val button = v as Button
+        val txt: TextView
+        txt = findViewById<View>(R.id.fortest) as TextView
+        text = ""
+        try {
+            if (num < array_password.size - 1) {
+                num++
+                array_password[num] = button.text.toString().toInt()
+            }
+            for (i in array_password.indices) {
+                if (num + 1 > i) imageViewArray[i]!!.setImageDrawable(resources.getDrawable(R.drawable.oval_password_white)) else imageViewArray[i]!!
+                    .setImageDrawable(resources.getDrawable(R.drawable.oval_password_gray))
+            }
+            for (i in array_password.indices) {
+                text += array_password[i]
+            }
+            txt.setText(text);
+            if (array_password[3] != -1) {
+                //send password
+                //saveIntArray(this, "PinCodePrefs", array_password)
+                /**/
+                //var testpin = intArrayOf(1,2,3,4)
+                array_password.map {it.toString().toInt()}.toIntArray()
+
+               // saveIntArray(this, "PinCodePrefs", array_password)
+
+                var loadpin = loadIntArray(this, "PinCodePrefs")
+
+                if(loadpin != null && arraysEqual(loadpin, array_password)) {
+                   // txt.setText("пароль совпал))")
+                    val intent = Intent(this, ConfirmAdress::class.java)
+                    startActivity(intent)
+                } else {
+                  //  txt.setText("пароль не совпал(("))
+                    for (i in imageViewArray.indices) {
+                        imageViewArray[i] = linear_password!!.getChildAt(i) as ImageView
+                        array_password[i] = -1
+                    }
+                }
+
+
+            }
+        } catch (e: Exception) {
+        }
+
+
+    }
+    fun saveIntArray(context: Context, key: String, array: IntArray){
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("PinCodePrefs", Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        val jsonArray = Gson().toJson(array.toList())
+
+        editor.putString(key, jsonArray)
+        editor.apply()
+
+        Log.e("SaveIntArray", jsonArray.toString())
+    }
+
+    fun loadIntArray(context: Context, key: String): IntArray? {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("PinCodePrefs", Context.MODE_PRIVATE)
+        val jsonArray = sharedPreferences.getString(key, null) ?: return null
+        val type = object: TypeToken<List<Int>>() {}.type
+        val list = Gson().fromJson<List<Int>>(jsonArray, type)
+        list.map {it.toString().toInt()}.toIntArray()
+        Log.e("LoadIntArray", list.toString())
+                return list.toIntArray()
+
+    }
+
+    private fun arraysEqual(arr1: IntArray, arr2: IntArray): Boolean {
+        Log.e("SravnilArray",arr1.toString() + "+" + arr2.toString())
+        return arr1.size == arr2.size && arr1.contentEquals(arr2)
+
+    }
+
+----------
+
+class PasswordClassNew : AppCompatActivity() {
+    var num = -1
+    var text = ""
+    var array_password = IntArray(4)
+    lateinit var imageViewArray: Array<ImageView?>
+    var linear_password: LinearLayout? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.pincode_pageenter)
+
+
+        val txt: TextView
+        txt = findViewById(R.id.fortest) as TextView
+        linear_password = findViewById(R.id.grid_password)// LinearLayout<View>(R.id.grid_password) as LinearLayout
+        imageViewArray = arrayOfNulls(4)
+        for (i in imageViewArray.indices) {
+            imageViewArray[i] = linear_password!!.getChildAt(i) as ImageView
+            array_password[i] = -1
+        }
+    }
+
+
+это выше
+
+
+создание и инициализция кнопки
